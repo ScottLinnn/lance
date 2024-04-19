@@ -1,0 +1,28 @@
+[package]
+name = "lance-file-jni"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+description = "Lance Columnar Format -- Core Library"
+keywords.workspace = true
+categories.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+jni = "0.21.1"
+lance = "0.10.1"
+arrow = { version = "50.0.0", features = ["ffi"] }
+tokio = { version = "1.36.0", features = ["full"] }
+lance-io.workspace = true
+lance-file.workspace = true
+lance-core.workspace = true
+arrow-schema.workspace = true
+object_store.workspace = true
+async-trait.workspace = true
+
+[lib]
+crate_type = ["cdylib"]
+
