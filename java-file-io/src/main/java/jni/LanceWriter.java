@@ -10,7 +10,7 @@ import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.memory.RootAllocator;
 
 class LanceWriter {
-
+    private final int NUM_ROWS = 4000000;
     private static BufferAllocator allocator = new RootAllocator();
 
     // private static final int TEST_ROW_NUM = 1000000;
@@ -44,18 +44,42 @@ class LanceWriter {
         System.out.println("Time used for allocating C struct: " + mallocTime + " milliseconds");
     }
 
-    public static void main(String[] args) {
-        System.out.println(hello("hello from Java!"));
+    private void benchWrite() {
+
         String homeDir = System.getenv("HOME");
         String base = homeDir + "/lance/file_jni_benchmark/java/";
         String fileName = "test_java.lance";
-        // DataGenerator dataGenerator = new DataGenerator(allocator);
-        // dataGenerator.generateData();
-        // VectorSchemaRoot root = dataGenerator.getVectorSchemaRoot();
+        DataGenerator dataGenerator = new DataGenerator(allocator);
+        dataGenerator.generateData();
+        VectorSchemaRoot root = dataGenerator.getVectorSchemaRoot();
+        long timestamp1 = System.currentTimeMillis();
+        write(base + fileName, root);
 
-        // write(base + fileName, root);
+        long timestamp2 = System.currentTimeMillis();
+        long timeUsed = timestamp2 - timestamp1;
+        System.out.println("benchWrite() Time used: " + (timeUsed) + " milliseconds");
+        System.out.println("benchWrite() NUM_ROWS: " + NUM_ROWS);
+        try {
+            java.io.FileWriter myWriter = new java.io.FileWriter(base + "write.log");
+            myWriter.write(timeUsed + "\n");
+            myWriter.write(NUM_ROWS + "\n");
+            myWriter.close();
+        } catch (Exception e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
 
+    private void benchWriteStream() {
+        String homeDir = System.getenv("HOME");
+        String base = homeDir + "/lance/file_jni_benchmark/java/";
+        String fileName = "test_java_stream.lance";
         StreamDataGenerator streamDataGenerator = new StreamDataGenerator(allocator);
         writeStream(base + fileName, streamDataGenerator);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(hello("hello from Java!"));
+
     }
 }

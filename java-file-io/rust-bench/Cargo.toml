@@ -1,0 +1,21 @@
+[package]
+name = "rust-bench"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+description.workspace = true
+keywords.workspace = true
+categories.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+lance = "0.10.15"
+
+arrow = { version = "50.0.0", optional = false, features = ["prettyprint"] }
+
+arrow-array = "50.0"
+tokio = "1.37.0"
+futures = "0.3.30"

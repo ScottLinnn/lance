@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class LanceReader {
-
+    private final int NUM_ROWS = 4000000;
     // private long schemaPtr; // should we do this?
     private static BufferAllocator allocator = new RootAllocator();
 
@@ -123,9 +123,7 @@ class LanceReader {
         return recordBatch;
     }
 
-    // The rest is just regular ol' Java!
-    public static void main(String[] args) {
-        System.out.println(hello("Hello from Java! "));
+    private void benchRange() {
         String homeDir = System.getenv("HOME");
         String base = homeDir + "/lance/file_jni_benchmark/java/";
         String fileName = "test_java.lance";
@@ -135,16 +133,61 @@ class LanceReader {
 
         ArrowSchema schema1 = ArrowSchema.allocateNew(allocator);
         Data.exportSchema(allocator, schema, null, schema1);
-        int rowNum = 40000000;
-        readRange(base + fileName, 0, rowNum - 1, schema1);
 
-        ArrowSchema scehma2 = ArrowSchema.allocateNew(allocator);
-        Data.exportSchema(allocator, schema, null, scehma2);
-        readRange(base + fileName, 20, 30, scehma2);
+        long timestamp1 = System.currentTimeMillis();
+        readRange(base + fileName, 0, NUM_ROWS - 1, schema1);
+        long timestamp2 = System.currentTimeMillis();
+        long timeUsed = timestamp2 - timestamp1;
+        System.out.println("benchRange() Time used: " + (timeUsed) + " milliseconds");
+        System.out.println("benchRange() NUM_ROWS: " + NUM_ROWS);
+        try {
+            java.io.FileWriter myWriter = new java.io.FileWriter(base + "readRange.log");
+            myWriter.write(timeUsed + "\n");
+            myWriter.write(NUM_ROWS + "\n");
+            myWriter.close();
+        } catch (Exception e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
 
-        ArrowSchema scehma3 = ArrowSchema.allocateNew(allocator);
-        Data.exportSchema(allocator, schema, null, scehma3);
-        int[] indices = { 24, 4, 15, 6, 26 };
-        readIndex(base + fileName, indices, scehma3);
+    private void benchIndex() {
+        String homeDir = System.getenv("HOME");
+        String base = homeDir + "/lance/file_jni_benchmark/java/";
+        String fileName = "test_java.lance";
+        DataGenerator dataGenerator = new DataGenerator(allocator);
+        dataGenerator.generateData();
+        Schema schema = dataGenerator.getSchema();
+
+        ArrowSchema schema1 = ArrowSchema.allocateNew(allocator);
+        Data.exportSchema(allocator, schema, null, schema1);
+        int numToTake = 200;
+        // Geneate {numToTake} random indices
+        int[] indices = new int[numToTake];
+        for (int i = 0; i < numToTake; i++) {
+            indices[i] = (int) (Math.random() * NUM_ROWS);
+        }
+        // Record time
+        long timestamp1 = System.currentTimeMillis();
+        readIndex(base + fileName, indices, schema1);
+        long timestamp2 = System.currentTimeMillis();
+        long timeUsed = timestamp2 - timestamp1;
+        System.out.println("benchIndex() Time used: " + (timeUsed) + " milliseconds");
+        System.out.println("benchIndex() numToTake: " + numToTake);
+        try {
+            java.io.FileWriter myWriter = new java.io.FileWriter(base + "readIndex.log");
+            myWriter.write(timeUsed + "\n");
+            myWriter.write(numToTake + "\n");
+            myWriter.close();
+        } catch (Exception e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    // The rest is just regular ol' Java!
+    public static void main(String[] args) {
+        System.out.println(hello("Hello from Java! "));
+
     }
 }

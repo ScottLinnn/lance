@@ -19,7 +19,7 @@ public class DataGenerator {
     private Schema schema;
     private VectorSchemaRoot vectorSchemaRoot;
     private BufferAllocator allocator;
-    private final int NUM_ROWS = 8000000;
+    private final int NUM_ROWS = 4000000;
 
     public DataGenerator(BufferAllocator allocator) {
         this.allocator = allocator;

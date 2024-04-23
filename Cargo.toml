@@ -1,5 +1,5 @@
 [workspace]
-members = [
+members = [ "java-file-io/rust-bench",
     "java/core/lance-jni",
     "rust/lance",
     "rust/lance-arrow",
