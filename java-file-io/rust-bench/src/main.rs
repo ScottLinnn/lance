@@ -1,17 +1,15 @@
 use arrow::{array::*, datatypes::Schema};
-
 use futures::stream::StreamExt;
 use lance::dataset::{Dataset, WriteParams};
-use std::{env, fs, sync::Arc, time::SystemTime};
+use std::{env, fs, io::Write, sync::Arc, time::SystemTime};
 use tokio::runtime::Runtime; // Import the Stream trait
 
-const ROW_NUM: usize = 40_000_000;
-
 fn generate_dummy_data() -> RecordBatch {
-    let id_array = (0..ROW_NUM).map(|i| Some(i as i64)).collect::<Vec<_>>();
+    let row_num: usize = env::var("BENCH_NUM_ROWS").unwrap().parse().unwrap();
+    let id_array = (0..row_num).map(|i| Some(i as i64)).collect::<Vec<_>>();
     let id_array = Int64Array::from(id_array);
     let name_array = StringArray::from(
-        (0..ROW_NUM)
+        (0..row_num)
             .map(|i| Some(format!("test{}", i)))
             .collect::<Vec<_>>(),
     );
@@ -29,7 +27,6 @@ fn generate_dummy_data() -> RecordBatch {
 }
 
 fn test_write() {
-    let start_time = SystemTime::now();
     let base = format!(
         "{}/lance/file_jni_benchmark/rust/",
         env::var("HOME").unwrap()
@@ -40,6 +37,8 @@ fn test_write() {
     if fs::metadata(format!("{}{}", base, dataset_url)).is_ok() {
         fs::remove_dir_all(format!("{}{}", base, dataset_url)).unwrap();
     }
+
+    let start_time = SystemTime::now();
 
     let arrow_schema = Schema::new(vec![
         arrow::datatypes::Field::new("id", arrow::datatypes::DataType::Int64, false),
@@ -55,7 +54,7 @@ fn test_write() {
     let write_params = WriteParams::default();
     let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(async {
-        Dataset::write(reader, &(base + dataset_url), Some(write_params))
+        Dataset::write(reader, &(base.clone() + dataset_url), Some(write_params))
             .await
             .unwrap();
         let end_time = SystemTime::now();
@@ -63,6 +62,11 @@ fn test_write() {
 
         println!("Write finished - Rust native write_dataset interface");
         println!("Time used for write: {} milliseconds", elapsed_time);
+        let row_num: usize = env::var("BENCH_NUM_ROWS").unwrap().parse().unwrap();
+        let mut file = fs::File::create(format!("{}write.log", base)).unwrap();
+        file.write(format!("{}\n", elapsed_time).as_bytes())
+            .unwrap();
+        file.write(format!("{}\n", row_num).as_bytes()).unwrap();
     });
 }
 
@@ -90,8 +94,13 @@ fn test_read_range() {
         let end_time = SystemTime::now();
         let elapsed_time = end_time.duration_since(start_time).unwrap().as_millis();
 
-        println!("Read finished - Rust native read_dataset interface");
+        println!("Read finished - Rust native dataset.scan() interface");
         println!("Time used for read: {} milliseconds", elapsed_time);
+        let row_num: usize = env::var("BENCH_NUM_ROWS").unwrap().parse().unwrap();
+        let mut file = fs::File::create(format!("{}readRange.log", base)).unwrap();
+        file.write(format!("{}\n", elapsed_time).as_bytes())
+            .unwrap();
+        file.write(format!("{}\n", row_num).as_bytes()).unwrap();
     });
 }
 
@@ -102,29 +111,40 @@ fn test_read_random() {
         env::var("HOME").unwrap()
     );
     let dataset_url = "dataset_rust.lance";
+    let num_take: usize = env::var("BENCH_NUM_TAKE").unwrap().parse().unwrap();
     let rt = Runtime::new().unwrap();
     rt.block_on(async {
         let dataset = Dataset::open(&format!("{}{}", base, dataset_url))
             .await
             .unwrap();
-        let scanner = dataset.scan();
-        let _: Vec<RecordBatch> = scanner
-            .try_into_stream()
-            .await
-            .unwrap()
-            .map(|b| b.unwrap())
-            .collect::<Vec<RecordBatch>>()
-            .await;
+        // Create {num_take} random indices
+        let row_indices = (0..num_take)
+            .map(|_| {
+                let row_num: usize = env::var("BENCH_NUM_ROWS").unwrap().parse().unwrap();
+                let index: usize = rand::random::<usize>() % row_num;
+                index as u64
+            })
+            .collect::<Vec<_>>();
+        let lance_schema = dataset.schema().clone();
+        let _: RecordBatch = dataset.take(&row_indices[..], &lance_schema).await.unwrap();
 
         let end_time = SystemTime::now();
         let elapsed_time = end_time.duration_since(start_time).unwrap().as_millis();
 
-        println!("Read finished - Rust native read_dataset interface");
+        println!("Read finished - Rust native dataset.take() interface");
         println!("Time used for read: {} milliseconds", elapsed_time);
+
+        // Write to a log file {base}readIndex.log
+        let row_num: usize = env::var("BENCH_NUM_ROWS").unwrap().parse().unwrap();
+        let mut file = fs::File::create(format!("{}readIndex.log", base)).unwrap();
+        file.write(format!("{}\n", elapsed_time).as_bytes())
+            .unwrap();
+        file.write(format!("{}\n", row_num).as_bytes()).unwrap();
     });
 }
 
 fn main() {
     test_write();
     test_read_range();
+    test_read_random();
 }

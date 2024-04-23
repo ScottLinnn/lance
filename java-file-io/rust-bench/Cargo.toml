@@ -19,3 +19,5 @@ arrow = { version = "50.0.0", optional = false, features = ["prettyprint"] }
 arrow-array = "50.0"
 tokio = "1.37.0"
 futures = "0.3.30"
+rand = "0.8.4"
+arrow-schema = "50.0"

@@ -6,8 +6,8 @@ import pyarrow as pa
 import lance
 
 
-ROW_NUM = 40000000
-NUM_TO_TAKE = 200
+ROW_NUM = int(os.environ.get("BENCH_NUM_ROWS"))
+NUM_TO_TAKE = int(os.environ.get("BENCH_NUM_TAKE"))
 
 
 def generate_dummy_data():
@@ -114,3 +114,4 @@ def test_write():
 
 test_write()
 test_read_range()
+test_read_random()

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class LanceReader {
-    private final int NUM_ROWS = 4000000;
+    private static final int NUM_ROWS = Integer.parseInt(System.getenv("BENCH_NUM_ROWS"));
     // private long schemaPtr; // should we do this?
     private static BufferAllocator allocator = new RootAllocator();
 
@@ -72,8 +72,8 @@ class LanceReader {
             ArrowArray array = ArrowArray.wrap(result[i + 1]);
 
             FieldVector fieldVector = Data.importVector(allocator, array, arrowSchema, null);
-            System.out.println("readIndex, printing FieldVector data, i = " + i);
-            printFieldVector(fieldVector);
+            // System.out.println("readIndex, printing FieldVector data, i = " + i);
+            // printFieldVector(fieldVector);
             vec.add(fieldVector);
 
         }
@@ -123,7 +123,7 @@ class LanceReader {
         return recordBatch;
     }
 
-    private void benchRange() {
+    private static void benchRange() {
         String homeDir = System.getenv("HOME");
         String base = homeDir + "/lance/file_jni_benchmark/java/";
         String fileName = "test_java.lance";
@@ -151,7 +151,7 @@ class LanceReader {
         }
     }
 
-    private void benchIndex() {
+    private static void benchIndex() {
         String homeDir = System.getenv("HOME");
         String base = homeDir + "/lance/file_jni_benchmark/java/";
         String fileName = "test_java.lance";
@@ -161,7 +161,7 @@ class LanceReader {
 
         ArrowSchema schema1 = ArrowSchema.allocateNew(allocator);
         Data.exportSchema(allocator, schema, null, schema1);
-        int numToTake = 200;
+        int numToTake = Integer.parseInt(System.getenv("BENCH_NUM_TAKE"));
         // Geneate {numToTake} random indices
         int[] indices = new int[numToTake];
         for (int i = 0; i < numToTake; i++) {
@@ -188,6 +188,7 @@ class LanceReader {
     // The rest is just regular ol' Java!
     public static void main(String[] args) {
         System.out.println(hello("Hello from Java! "));
-
+        benchRange();
+        benchIndex();
     }
 }

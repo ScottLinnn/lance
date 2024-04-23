@@ -10,7 +10,8 @@ import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.memory.RootAllocator;
 
 class LanceWriter {
-    private final int NUM_ROWS = 4000000;
+    // Read from env var BENCH_NUM_ROWS
+    private static final int NUM_ROWS = Integer.parseInt(System.getenv("BENCH_NUM_ROWS"));
     private static BufferAllocator allocator = new RootAllocator();
 
     // private static final int TEST_ROW_NUM = 1000000;
@@ -44,7 +45,7 @@ class LanceWriter {
         System.out.println("Time used for allocating C struct: " + mallocTime + " milliseconds");
     }
 
-    private void benchWrite() {
+    private static void benchWrite() {
 
         String homeDir = System.getenv("HOME");
         String base = homeDir + "/lance/file_jni_benchmark/java/";
@@ -70,7 +71,7 @@ class LanceWriter {
         }
     }
 
-    private void benchWriteStream() {
+    private static void benchWriteStream() {
         String homeDir = System.getenv("HOME");
         String base = homeDir + "/lance/file_jni_benchmark/java/";
         String fileName = "test_java_stream.lance";
@@ -80,6 +81,6 @@ class LanceWriter {
 
     public static void main(String[] args) {
         System.out.println(hello("hello from Java!"));
-
+        benchWrite();
     }
 }
