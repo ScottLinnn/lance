@@ -33,7 +33,7 @@ Currently, the implementation assumes lance will be put in home directory (the p
 Firstly we need to set up some environment viriables.
 
 ```
-export LD_LIBRARY_PATH=/home/scott/lance/target/debug/ # the path to rust compiled shared library for JNI to load, replace "/home/scott/" with your path to lance directory
+export LD_LIBRARY_PATH=/home/scott/lance/target/debug/ # the path to rust compiled shared library for JNI to load, replace "/home/scott/" with your home directory
 export BENCH_NUM_ROWS=40000000 # total number of rows in a Lance file
 export BENCH_NUM_TAKE=2000 # total number of random rows taken from a file, for random read benchmark
 ```
