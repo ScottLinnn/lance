@@ -71,7 +71,9 @@ python plot.py
 
 it will automatically read the logs and make the plots.
 
+## Table data
 
+Currently, the data the benchmarks are creating is two-column: an integer column and a string column.
 
 
 
