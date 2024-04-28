@@ -25,3 +25,55 @@ In Java, there is not a perfect counterpart of Rusty `RecordBatch`. The closest 
 ## Streaming Write: `LanceWriter.writeStream()`
 
 Write a file with multiple record batches. This is somewhat similar to a pull-based query operator - next batch is sent from Java to Rust when `next` is called in Rust.
+
+# Run benchmark
+
+Currently, the implementation assumes lance will be put in home directory (the path to lance is `$HOME/lance`).
+
+Firstly we need to set up some environment viriables.
+
+```
+export LD_LIBRARY_PATH=/home/scott/lance/target/debug/ # the path to rust compiled shared library for JNI to load, replace "/home/scott/" with your home directory
+export BENCH_NUM_ROWS=40000000 # total number of rows in a Lance file
+export BENCH_NUM_TAKE=2000 # total number of random rows taken from a file, for random read benchmark
+```
+
+Then we need to compile the shared library.
+
+```
+cargo build # Run this in the root directory of lance
+```
+
+We also need to install lance interface for python benchmark.
+
+```
+pip install pylance
+```
+
+Now we should be able to run the benchmarks. 
+
+To run Python benchmark:
+```
+python benchmark.py
+```
+To run Rust benchmark:
+```
+cd rust-bench
+cargo run
+```
+To run Java benchmark, simply run the `main` in `src/main/java/jni/LanceReader`.java and `src/main/java/jni/LanceWriter.java`. (I'm currently doing this by clicking the buttons in vscode)
+
+After running the benchmarks for three interfaces, the logs will be available in `~/lance/file_jni_benchmark/`. Run
+
+```
+python plot.py
+```
+
+it will automatically read the logs and make the plots.
+
+## Table data
+
+Currently, the data the benchmarks are creating is two-column: an integer column and a string column.
+
+
+
