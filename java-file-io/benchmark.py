@@ -90,7 +90,6 @@ def test_write():
         ]
     )
 
-    start_time = round(time.time() * 1000)
     home_dir = os.environ.get("HOME")
     base = home_dir + "/lance/file_jni_benchmark/python/"
     dataset_url = "dataset_python.lance"
@@ -98,7 +97,9 @@ def test_write():
     if os.path.exists(base + dataset_url):
         shutil.rmtree(base + dataset_url)
 
-    lance.write_dataset(producer(), base + dataset_url, schema)
+    record_batch = generate_dummy_data()
+    start_time = round(time.time() * 1000)
+    lance.write_dataset(record_batch, base + dataset_url, schema)
     end_time = round(time.time() * 1000)
 
     elapsed_time = end_time - start_time

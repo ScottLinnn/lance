@@ -56,7 +56,7 @@ pub extern "system" fn Java_jni_LanceWriter_hello<'local>(
 }
 
 #[no_mangle]
-pub extern "system" fn Java_jni_LanceWriter_write<'local>(
+pub extern "system" fn Java_jni_LanceWriter_writeJni<'local>(
     mut env: JNIEnv<'local>,
     _class: JClass<'local>,
     path: JString<'local>,
@@ -92,7 +92,7 @@ pub extern "system" fn Java_jni_LanceWriter_write<'local>(
 }
 
 #[no_mangle]
-pub extern "system" fn Java_jni_LanceWriter_writeStream<'local>(
+pub extern "system" fn Java_jni_LanceWriter_writeStreamJni<'local>(
     mut env: JNIEnv<'local>,
     _class: JClass<'local>,
     path: JString<'local>,
@@ -127,7 +127,7 @@ pub extern "system" fn Java_jni_LanceWriter_writeStream<'local>(
     });
 
     println!("Rust writeStream time elapsed: {:?}", curr_time.elapsed());
-    return 1;
+    return 0;
 }
 
 // Call Java class to generate next batch and get the pointers

@@ -22,9 +22,9 @@ class LanceWriter {
 
     private static native String hello(String input);
 
-    private static native int write(String path, long arrayPtr, long schemaPtr);
+    private static native int writeJni(String path, long arrayPtr, long schemaPtr);
 
-    private static native int writeStream(String path, StreamDataGenerator streamDataGenerator);
+    private static native int writeStreamJni(String path, StreamDataGenerator streamDataGenerator);
 
     public static void write(String path, VectorSchemaRoot root) {
         // Print time before and after write
@@ -35,7 +35,7 @@ class LanceWriter {
         Data.exportVectorSchemaRoot(allocator, root, null, array, schema);
 
         long timestamp2 = System.currentTimeMillis();
-        write(path, array.memoryAddress(), schema.memoryAddress());
+        writeJni(path, array.memoryAddress(), schema.memoryAddress());
         long timestamp3 = System.currentTimeMillis();
         System.err.println("Write finished - JNI file writer interface");
 
@@ -76,11 +76,11 @@ class LanceWriter {
         String base = homeDir + "/lance/file_jni_benchmark/java/";
         String fileName = "test_java_stream.lance";
         StreamDataGenerator streamDataGenerator = new StreamDataGenerator(allocator);
-        writeStream(base + fileName, streamDataGenerator);
+        writeStreamJni(base + fileName, streamDataGenerator);
     }
 
     public static void main(String[] args) {
-        System.out.println(hello("hello from Java!"));
+        System.out.println(hello("Hello from Java!"));
         benchWrite();
     }
 }

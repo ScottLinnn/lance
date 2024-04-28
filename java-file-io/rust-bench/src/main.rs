@@ -38,8 +38,6 @@ fn test_write() {
         fs::remove_dir_all(format!("{}{}", base, dataset_url)).unwrap();
     }
 
-    let start_time = SystemTime::now();
-
     let arrow_schema = Schema::new(vec![
         arrow::datatypes::Field::new("id", arrow::datatypes::DataType::Int64, false),
         arrow::datatypes::Field::new("name", arrow::datatypes::DataType::Utf8, false),
@@ -54,11 +52,11 @@ fn test_write() {
     let write_params = WriteParams::default();
     let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(async {
+        let start_time = SystemTime::now();
         Dataset::write(reader, &(base.clone() + dataset_url), Some(write_params))
             .await
             .unwrap();
-        let end_time = SystemTime::now();
-        let elapsed_time = end_time.duration_since(start_time).unwrap().as_millis();
+        let elapsed_time = start_time.elapsed().unwrap().as_millis();
 
         println!("Write finished - Rust native write_dataset interface");
         println!("Time used for write: {} milliseconds", elapsed_time);

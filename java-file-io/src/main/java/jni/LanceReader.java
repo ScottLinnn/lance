@@ -189,6 +189,6 @@ class LanceReader {
     public static void main(String[] args) {
         System.out.println(hello("Hello from Java! "));
         benchRange();
-        benchIndex();
+        // benchIndex();
     }
 }
