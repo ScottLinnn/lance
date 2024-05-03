@@ -2,7 +2,7 @@
 
 File-level read/write JNI bridge for Lance.
 
-Lance is a great data file format designed for modern ML workload. It's optimized for random access hence outperforms Parquet more than 100x on random read performance. However, its interface is designed around the concept of dataset(Lance's counterpart of Iceberg), hiding the details of managing individual data files. In some cases, one might want to only use the Lance **file** format without its dataset management feature(e.g. user is already using Iceberg to manage Parquet files and wants to replace xx.parquet with xx.lance). To accommodate such demands, I developed the JNI bridge for Lance file read/write. It's designed for [Arrow](https://github.com/apache/arrow) in-memory format, so its primary usage is writing record batches(in Java) to .lance files or reading record batches(in Java) from .lance files.
+Lance is a great data file format designed for modern ML workload. It's optimized for random access hence outperforms Parquet more than 100x on random read performance. However, its interface is designed around the concept of dataset(Lance's counterpart of Iceberg), hiding the details of managing individual data files. In some cases, one might want to only use the Lance **file** format without its dataset management feature. To accommodate such demands, I developed the JNI bridge for Lance file read/write. It's designed for [Arrow](https://github.com/apache/arrow) in-memory format, so its primary usage is writing record batches(in Java) to .lance files or reading record batches(in Java) from .lance files.
 
 # Interfaces
 
